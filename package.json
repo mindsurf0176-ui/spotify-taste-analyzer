@@ -1,0 +1,35 @@
+{
+  "name": "spotify-taste-analyzer",
+  "version": "0.2.0",
+  "description": "CLI that turns Spotify artists, playlists, and account data into a readable music taste profile.",
+  "bin": {
+    "spotify-taste-analyzer": "index.js"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YOUR_USERNAME/spotify-classical-bridge.git"
+  },
+  "homepage": "https://github.com/YOUR_USERNAME/spotify-classical-bridge#readme",
+  "bugs": {
+    "url": "https://github.com/YOUR_USERNAME/spotify-classical-bridge/issues"
+  },
+  "keywords": [
+    "spotify",
+    "spotify-api",
+    "cli",
+    "music",
+    "music-analysis",
+    "taste-analyzer",
+    "recommendations",
+    "oauth"
+  ],
+  "files": [
+    "index.js",
+    "README.md"
+  ],
+  "dependencies": {},
+  "engines": {
+    "node": ">=14"
+  }
+}
