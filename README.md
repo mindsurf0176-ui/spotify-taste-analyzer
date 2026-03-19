@@ -1,273 +1,91 @@
 # spotify-taste-analyzer
 
-> Turn a few artists, a playlist link, or your own Spotify account into a fast, surprisingly readable taste profile.
+A CLI that turns your Spotify listening data into a visual taste profile. Generates a single-file HTML report you can open in any browser — no server needed.
 
-**spotify-taste-analyzer** is a lightweight CLI for understanding music taste without building a whole dashboard. It works in two modes:
+![Node.js](https://img.shields.io/badge/node-%3E%3D18-green) ![License](https://img.shields.io/badge/license-MIT-blue)
 
-- **No-auth mode:** analyze pasted artists/tracks or get lightweight hints from a public Spotify playlist URL
-- **Authenticated mode:** connect your Spotify account and generate a richer profile from your top artists, top tracks, recent listening, and liked songs
+## What you get
 
-It is intentionally small, scriptable, and easy to run locally.
+- **Three time ranges** — Last 4 Weeks / Last 6 Months / All Time, shown in switchable tabs
+- **Top artists & tracks** per period with genre tags
+- **Genre clusters & mood descriptors** inferred from your listening
+- **Listening Evolution** — which artists stuck around, which are new discoveries
+- **Genre Diversity score** — Shannon entropy-based metric (are you an Eclectic Explorer or a Genre Loyalist?)
+- **When You Listen** — 24-hour heatmap from your recent plays
+- **Recently Played** with rotation drift analysis
+- **Saved Library** snapshot & comparison
+- **Download as Image** — one-click PNG export of your entire profile
+- Dark theme, responsive, works on mobile
 
-> Repo folder name stays `spotify-classical-bridge` for stability, but the user-facing project name is **spotify-taste-analyzer**.
-
-## Why this is fun
-
-Most Spotify tools either need full auth immediately or dump raw data without saying anything interesting. This one is built to be useful in a terminal:
-
-- gives you a **taste summary**, not just a list
-- works even when you **do not want to set up Spotify auth yet**
-- surfaces **genre clusters**, **mood/texture descriptors**, and notable signals
-- can compare your **top taste** with your **current rotation** and **saved library**
-- keeps the original **classical bridge recommendations** as an optional flavor, instead of making that the whole product
-
-## Features
-
-### No-auth mode
-
-Works with zero Spotify credentials.
-
-- Analyze a pasted list of artists or tracks
-- Accept a public Spotify playlist URL and extract lightweight metadata hints
-- Explain why Spotify profile URLs are limited without API access
-- Great for quick experiments, demos, and screenshots
-
-### Authenticated Spotify mode
-
-Works after a one-time local OAuth flow.
-
-- Fetch your top artists and top tracks
-- Generate inferred genre clusters
-- Add mood / texture descriptors
-- Produce a concise written taste summary
-- Optionally include:
-  - **recently played** analysis with a simple rotation/drift view
-  - **saved tracks / liked songs** snapshot and comparison
-- Supports `--full` for the richer all-in-one analysis path
-
-## Quick start
-
-### 1) Install / run locally
+## Setup
 
 ```bash
-cd /Users/minseo/.openclaw/workspace/tools/spotify-classical-bridge
-node index.js help
+git clone https://github.com/mindsurf0176-ui/spotify-taste-analyzer.git
+cd spotify-taste-analyzer
 ```
 
-If you want the package-style command later:
+You'll need a [Spotify Developer](https://developer.spotify.com/dashboard) app:
 
 ```bash
-npm link
-spotify-taste-analyzer help
+export SPOTIFY_CLIENT_ID="your_id"
+export SPOTIFY_CLIENT_SECRET="your_secret"
 ```
 
-### 2) Try it without auth
-
-Paste artists:
-
-```bash
-node index.js "Radiohead, Slowdive, Mogwai"
-```
-
-Analyze a public playlist URL:
-
-```bash
-node index.js "https://open.spotify.com/playlist/37i9dQZF1DX2sUQwD7tbmL"
-```
-
-Profile URL limitation path:
-
-```bash
-node index.js "https://open.spotify.com/user/xxxxx"
-```
-
-### 3) Unlock full account analysis (optional)
-
-Create a Spotify app in the Spotify Developer Dashboard and export your credentials:
-
-```bash
-export SPOTIFY_CLIENT_ID="your_client_id"
-export SPOTIFY_CLIENT_SECRET="your_client_secret"
-export SPOTIFY_REDIRECT_URI="http://127.0.0.1:8765/callback"
-```
-
-Then authenticate:
+Authenticate (opens browser for OAuth):
 
 ```bash
 node index.js auth
 ```
-
-And analyze your account:
-
-```bash
-node index.js analyze-me --term medium_term --limit 10
-```
-
-For the richer version:
-
-```bash
-node index.js analyze-me --term medium_term --limit 10 --full
-```
-
-## No-auth vs authenticated mode
-
-| Mode | Needs Spotify developer app? | What you get |
-|---|---:|---|
-| Pasted artists/tracks | No | Fast genre, mood, and recommendation-style taste read |
-| Public playlist URL | No | Lightweight metadata-based hints |
-| Spotify profile URL | No | Limitation explanation only |
-| `analyze-me` | Yes | Real account-based analysis from Spotify data |
-| `analyze-me --full` | Yes | Adds recent listening + liked songs/library snapshot |
-
-### Use no-auth mode when...
-
-- you want to try the tool in 10 seconds
-- you are sharing a demo with someone else
-- you do not want to create Spotify developer credentials yet
-- you just want a quick taste read from a few names
-
-### Use authenticated mode when...
-
-- you want a profile based on **your actual Spotify history**
-- you want **top artists + tracks**, not just inferred taste from pasted input
-- you want **recent rotation drift** and **liked songs/library** context
-
-## Spotify setup for authenticated mode
-
-1. Go to the Spotify Developer Dashboard: <https://developer.spotify.com/dashboard>
-2. Create an app
-3. Copy the Client ID and Client Secret
-4. Add a Redirect URI for this CLI
-   - Recommended: `http://127.0.0.1:8765/callback`
-5. Save the app settings
-
-Environment variables used by the CLI:
-
-- `SPOTIFY_CLIENT_ID`
-- `SPOTIFY_CLIENT_SECRET`
-- `SPOTIFY_REDIRECT_URI` *(optional; defaults to `http://127.0.0.1:8765/callback`)*
-
-### Requested Spotify scopes
-
-- `user-top-read`
-- `user-read-recently-played`
-- `user-library-read`
-
-If you authorized an older version of the CLI before the extra scopes were added, **re-run `node index.js auth`** so Spotify issues tokens with the updated permissions.
 
 ## Usage
 
 ```bash
-node index.js help
-node index.js auth
-node index.js auth --no-open
-node index.js auth --code <authorization_code>
-node index.js analyze-me --term medium_term --limit 10
-node index.js analyze-me --term medium_term --limit 10 --with-recent
-node index.js analyze-me --term medium_term --limit 10 --with-library
-node index.js analyze-me --term medium_term --limit 10 --full
-node index.js "Radiohead, Slowdive, Mogwai"
-node index.js "https://open.spotify.com/playlist/..."
+# Full analysis with HTML report
+node index.js analyze-me --html
+
+# Terminal-only output
+node index.js analyze-me
+
+# Adjust limit
+node index.js analyze-me --html --limit 20
+
+# Quick analysis from pasted artists (no auth needed)
+node index.js "keshi, Deftones, King Gnu"
 ```
 
-## Example output
+The `--html` flag generates `taste-report.html` and opens it in your browser. It automatically includes recent plays and library data.
 
-### Pasted artists
+## Flags
 
-```text
-Parsed items: Radiohead, Slowdive, Mogwai
+| Flag | What it does |
+|------|-------------|
+| `--html` | Generate HTML report + auto-open |
+| `--term <value>` | `short_term`, `medium_term`, or `long_term` (default: `medium_term`) |
+| `--limit <n>` | Number of top artists/tracks per period (1-50, default: 10) |
+| `--full` | Include recent plays + saved library (auto-enabled with `--html`) |
+| `--with-recent` | Include recently played tracks |
+| `--with-library` | Include saved/liked songs |
 
-Inferred genre clusters: alt rock, art rock, shoegaze, dream pop, post-rock, instrumental rock
-Inferred mood/texture tags: brooding, introspective, textured, reverb-drenched, ethereal, cinematic, expansive
+## No-auth mode
 
-Recommended classical works and bridge explanations:
-...
-```
-
-### Authenticated account analysis
-
-```text
-Top artists:
-- Artist A
-- Artist B
-- Artist C
-
-Representative genres: chamber pop, indie folk, baroque pop
-Mood / texture: intimate, warm, lyrical, wistful
-
-Taste summary:
-You tend to favor articulate songwriting, soft-to-rich arrangements, and emotionally detailed music with a reflective center.
-
-Recent rotation drift:
-- 40% overlap with top artists
-- More upbeat in recent plays than long-term tops
-```
-
-## What the tool prints
-
-Depending on mode and flags, output can include:
-
-- inferred genre clusters
-- representative genres
-- mood / texture descriptors
-- notable artist/track signals
-- concise taste summary
-- optional classical bridge examples
-- recently played / rotation drift section
-- saved-library snapshot and comparison
-
-## Commands and flags
-
-### Commands
-
-- `help` — show usage
-- `auth` / `login` — start Spotify OAuth flow
-- `logout` — delete the locally stored token file
-- `analyze-me` — analyze your Spotify account with stored tokens
-
-### Useful flags
-
-- `--term <short_term|medium_term|long_term>`
-- `--limit <1-50>`
-- `--no-open`
-- `--code <authorization_code>`
-- `--with-recent`
-- `--with-library`
-- `--full` — enables both `--with-recent` and `--with-library`
-
-## Verification performed locally
-
-Verified in this workspace with safe local commands:
+Don't want to set up Spotify credentials? You can still paste artists or a playlist URL:
 
 ```bash
-node index.js --help
-node index.js "Radiohead, Slowdive, Mogwai"
-node index.js "https://open.spotify.com/user/xxxxx"
-node index.js auth
+node index.js "Radiohead, Slowdive, tricot, Age Factory"
+node index.js "https://open.spotify.com/playlist/37i9dQZF1DX2sUQwD7tbmL"
 ```
 
-What was confirmed:
+You'll get genre clusters and mood descriptors — just no personalized data.
 
-- help output renders correctly
-- no-auth pasted-artist analysis still works
-- profile URL fallback still explains limitations clearly
-- auth fails safely and clearly when Spotify credentials are not set
+## How genre detection works
 
-## Limitations
+Spotify's API sometimes returns empty genre arrays for artists. When that happens, the tool falls back to a built-in heuristic that maps artist names to genres. Coverage includes J-rock, K-indie, K-R&B, shoegaze, post-punk, math rock, and more. PRs to expand the mapping are welcome.
 
-- Public Spotify profile pages do not expose enough structured data for reliable full parsing without API access
-- Playlist URL mode is intentionally lightweight in no-auth mode
-- Live authenticated analysis depends on real Spotify credentials and user authorization
+## Privacy
 
-## Security / privacy notes
-
-- Tokens are stored locally in `.spotify-tokens.json`
-- Do **not** commit real credentials or token files
-- This repo should keep secrets local and out of version control
-
-## Why star it?
-
-If you like small CLI tools that do one interesting thing well — especially ones that turn messy music taste into something readable — this is that kind of project.
+- Tokens are stored locally in `.spotify-tokens.json` (gitignored)
+- No data is sent anywhere except Spotify's own API
+- The HTML report is a local file — nothing is uploaded
 
 ## License
 
